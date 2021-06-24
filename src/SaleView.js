@@ -23,7 +23,7 @@ const InfoWrap = styled.div`
 `;
 const LeadInfo = styled.table`
   width: 70%;
-  margin: 2rem 0rem;
+  margin: 0rem;
 `;
 const LeadScore = styled.div`
   width: 90%;
@@ -37,14 +37,20 @@ const BehaviourWrap = styled.div`
   align-items: center;
 `;
 
+const TitleTD = styled.td`
+  padding: 0.5rem 2rem;
+  text-align: right;
+`;
+
 export default function SaleView() {
   const [SelectedLeads, setSelectedLeads] = useState();
   const [Behaviours, setBehaviours] = useState([]);
+  const [InfoAdditional, setInfoAdditional] = useState([]);
 
   useEffect(() => {
     const loadData = async () => {
       const id = window.location.pathname.split("/")[1];
-      console.log(1,id);
+      console.log(1, id);
       const res1 = await fetch(`http://125.234.107.177:43000/lead/${id}`, {
         method: "GET",
         headers: {
@@ -54,7 +60,8 @@ export default function SaleView() {
       });
       const lead = await res1.json();
       console.log(lead);
-      setSelectedLeads(lead);
+      setSelectedLeads(lead.crm);
+      setInfoAdditional(lead.raw.additional_info);
       const res2 = await fetch(`http://125.234.107.177:43000/behavior/`, {
         method: "POST",
         headers: {
@@ -81,27 +88,37 @@ export default function SaleView() {
                   <h2>Information</h2>
                   <LeadInfo>
                     <tr>
-                      <td>ID</td>
+                      <TitleTD>ID</TitleTD>
                       <td>{SelectedLeads.id}</td>
                     </tr>
                     <tr>
-                      <td>Fullname</td>
+                      <TitleTD>Fullname</TitleTD>
                       <td>{SelectedLeads.fullname}</td>
                     </tr>
                     <tr>
-                      <td>Email</td>
+                      <TitleTD>Email</TitleTD>
                       <td>{SelectedLeads.email}</td>
                     </tr>
                     <tr>
-                      <td>Phone</td>
+                      <TitleTD>Phone</TitleTD>
                       <td>{SelectedLeads.phone}</td>
                     </tr>
                     <tr>
-                      <td>Source</td>
+                      <TitleTD>Source</TitleTD>
                       <td>{SelectedLeads.source}</td>
                     </tr>
+                    {InfoAdditional &&
+                      InfoAdditional.map((el) => (
+                        <tr key={el.key}>
+                          <TitleTD>{el.key}</TitleTD>
+                          <td>{el.value}</td>
+                        </tr>
+                      ))}
                   </LeadInfo>
-                  <h2>Score</h2>
+                  
+                </InfoWrap>
+                <BehaviourWrap>
+                <h2>Score</h2>
                   <LeadScore>
                     <Table>
                       <Table.Header>
@@ -167,8 +184,6 @@ export default function SaleView() {
                       <Table.Footer></Table.Footer>
                     </Table>
                   </LeadScore>
-                </InfoWrap>
-                <BehaviourWrap>
                   <h2>Behaviour</h2>
                 </BehaviourWrap>
               </>
